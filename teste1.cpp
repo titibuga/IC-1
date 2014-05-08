@@ -15,22 +15,29 @@ using namespace std;
 
 int** alocaMatrizQuadrada(int n);
 void criaGrafo();
+void criaArestas(int,int);
+void novaAresta(int, int);
+float distCircular(int,int,int,int);
 
 
 float d, D;
 int n;
 int** A;
 
+vector<int>* adj;
+
 
 int main(int argc, char* argv[])
 {
 
 
-	D = strtof(argv[1]);
-	d = strtof(argv[2]);
+	D = strtof(argv[1], NULL);
+	d = strtof(argv[2], NULL);
 	n = D/d; /* cuidado com arredondamento */
 
 	A = alocaMatrizQuadrada(n);
+
+	adj =(vector<int>*) malloc(n*sizeof(vector<int>));
 
 
 	return 0;
@@ -39,8 +46,7 @@ int main(int argc, char* argv[])
 
 /*
 	Numero os quadrados da matriz de forma crescente,
-	da esq
-
+	da esquerda para a direita
 */
 
 int pontoVertice(int x, int y)
@@ -48,13 +54,25 @@ int pontoVertice(int x, int y)
 	return n*y + x;
 }
 
+/*****************
+
+	Retorna a menor distancia entre dois quadradinhos
+	no quadrado, dentre todas as distâncias possiveis.
+
+	Ou seja, trata a malha coo algo "circular"
+
+*********************/
+
 float distCircular(int x1, int y1, int x2, int y2)
 {
 	float dx = x1 -x2, dy = y1 - y2;
 
-	if(dx > )
+	if(dx > n/2 ) // Rever
+		dx = n - dx;
+	if(dy > n/2) // Rever
+		dy = n - dy;
 
-	return dx*dx + dy*dy
+	return (dx*dx + dy*dy)*d;
 }
 
 
@@ -62,12 +80,50 @@ float distCircular(int x1, int y1, int x2, int y2)
 /* Vai criar o grafo onde dois pontos são
 	adjacentes <=> dist = 1 (com margem de erro
 	devido a aproximação)
+
+	Obs: Ordem n^4, MELHORAR.
 */
 
 void criaGrafo()
 {
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			criaArestas(i,j);
+}
+
+
+
+
+void criaArestas(int x, int y)
+{
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j <  n; j++)
+		{
+			float dist = distCircular(x,y,i,j);
+			if(dist >= 1 && dist <= 1+d) // REVER
+				novaAresta(pontoVertice(x,y),pontoVertice(i,j));
+				// Cria aresta entre (x,y) e (i,j)
+		}
 
 }
+
+
+void novoArco(int v1, int v2)
+{
+	//Falta verificar de v1->v2 ja existe
+	ajd[v1].push_back(v2);
+}
+
+
+
+void novaAresta(int v1, int v2)
+{
+	novoArco(v1,v2);
+	novoArco(v2,v1);
+}
+
+
+
 
 
 
@@ -75,9 +131,9 @@ int** alocaMatrizQuadrada(int n)
 {
 	int** m;
 
-	m = malloc(n*sizeof(int*));
+	m =(int**) malloc(n*sizeof(int*));
 	for(int i = 0; i < n; i++)
-		m = malloc(n*sizeof(int));
+		m[i] =(int*) malloc(n*sizeof(int));
 
 	return m;
 }
