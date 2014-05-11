@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 
 using namespace std;
@@ -22,7 +23,7 @@ using namespace std;
 typedef struct ponto{
 	int x;
 	int y;
-	int i;
+	int i; // INDICE NO VETOR DE VERTICES
 } *Ponto;
 
 
@@ -38,7 +39,7 @@ float d, D;
 int n, N;
 int** A;
 
-list<int> adj[1000];
+vector< list<int> > adj;
 Ponto* vertices;
 
 
@@ -57,6 +58,7 @@ int main(int argc, char* argv[])
 	N = n*n;
 
 	//adj = new vector<int>[n];
+	adj.resize(N);	
 	vertices = new Ponto[n*n];
 
 	Ponto pteste;
@@ -71,12 +73,13 @@ int main(int argc, char* argv[])
 			vertices[p->i] = p;
 		}
 
-	criaArestas(pteste);
+	criaGrafo();
 
 	for(int i = 0; i < n; i++)
 	{
 		for(int j = 0; j < n; j++)
-			printf("[%d]",A[i][j]);
+			if(!A[i][j])printf("\033[1;31m[%d]\033[0m",A[i][j]);
+			else printf("[%d]",A[i][j]);
 		printf("\n");
 	}
 
@@ -108,17 +111,18 @@ float distCircular(Ponto p1, Ponto p2)
 {
 	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
 	float dx = x1 -x2, dy = y1 - y2;
+	float dist1;
 
 	if(dx < 0) dx*=-1;
 	if(dy < 0) dy*=-1;
 
-	if(dx > n/2 ) // Rever
+	if(dx > n/2 ) // Certeza?
 		dx = n - dx;
-	if(dy > n/2) // Rever
+	if(dy > n/2) // Certeza?
 		dy = n - dy;
 
 	//printf("Dist: %f\n", (dx*dx + dy*dy)*d);
-	return (dx*dx + dy*dy)*d;
+	return sqrt(dx*dx + dy*dy)*d;
 }
 
 
@@ -137,7 +141,7 @@ void criaGrafo()
 }
 
 
-
+   
 
 void criaArestas(Ponto p)
 {
@@ -164,7 +168,6 @@ void novoArco(int v1, int v2)
 		if(*it == v2) return;
 	}
 	//if(find(adj[v1].begin(), adj[v1].end(), v2) != adj[v1].end())
-	printf("HUE\n");
 	adj[v1].push_back(v2);
 }
 
