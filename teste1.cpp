@@ -25,6 +25,8 @@ int n;
 int** A;
 
 vector<int>* adj;
+vecotr< vector<int> > madj;
+
 
 
 int main(int argc, char* argv[])
@@ -36,7 +38,13 @@ int main(int argc, char* argv[])
 	n = D/d; /* cuidado com arredondamento */
 
 	A = alocaMatrizQuadrada(n);
-
+    madj.resize(n);
+    for(int i = 0; i < n; i++)
+    {
+        madj[i].resize(n);
+        for(int j = 0; j < n; j++)
+            madj[i][j] = 0;
+    }
 	adj =(vector<int>*) malloc(n*sizeof(vector<int>));
 
 
@@ -102,6 +110,7 @@ void criaArestas(int x, int y)
 			float dist = distCircular(x,y,i,j);
 			if(dist >= 1 && dist <= 1+d) // REVER
 				novaAresta(pontoVertice(x,y),pontoVertice(i,j));
+
 				// Cria aresta entre (x,y) e (i,j)
 		}
 
@@ -112,6 +121,8 @@ void novoArco(int v1, int v2)
 {
 	//Falta verificar de v1->v2 ja existe
 	ajd[v1].push_back(v2);
+
+    madj[v1][v2] = 1;
 }
 
 
@@ -137,3 +148,51 @@ int** alocaMatrizQuadrada(int n)
 
 	return m;
 }
+
+
+/***************************************************
+ *
+ * Algoritimos para achar conjuntos independentes
+ *
+ *
+ *
+ *
+ * Feitos:
+ *  - Força bruta (indepSet1())
+ ****************************************************/
+
+//Supomos que v1 e v2 são do mesmo tamanho
+// ---> Função usada em indepSet1()
+int disjuntos(vector<int> v1, vector<int> v2)
+{
+    int tam = v1.size();
+
+    for(int i = 0; i < tam; i++)
+}
+
+
+    
+void indepSet1()
+{
+    vector<int> s(n);   
+    int j;
+    for(int i = 0; i < n; i++)
+        s[i] = 0;
+
+    s[j] = 1;
+    while(1)
+    {
+        s[j] = 1;
+
+
+        // se ainda é conjunto indep, frita
+
+        if(disjuntos(madj[v], s))
+        {
+        }
+    }
+
+}
+
+
+
