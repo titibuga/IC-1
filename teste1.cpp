@@ -36,12 +36,14 @@ int main(int argc, char* argv[])
 	D = strtof(argv[1], NULL);
 	d = strtof(argv[2], NULL);
 	n = D/d; /* cuidado com arredondamento */
+    int N = n*n;
 
-	A = alocaMatrizQuadrada(n);
-    madj.resize(n);
-    for(int i = 0; i < n; i++)
+
+	A = alocaMatrizQuadrada(N);
+    madj.resize(N);
+    for(int i = 0; i < N; i++)
     {
-        madj[i].resize(n);
+        madj[i].resize(N);
         for(int j = 0; j < n; j++)
             madj[i][j] = 0;
     }
@@ -174,22 +176,50 @@ int disjuntos(vector<int> v1, vector<int> v2)
     
 void indepSet1()
 {
-    vector<int> s(n);   
+    int tam;
+    vector<int> s(n*n);  
+    vector<int> maxS(n*n);
     int j;
     for(int i = 0; i < n; i++)
         s[i] = 0;
-
+    int N = n*n;
     s[j] = 1;
     while(1)
     {
-        s[j] = 1;
 
-
-        // se ainda é conjunto indep, frita
-
-        if(disjuntos(madj[v], s))
+        if(j > N)
         {
+            while(j!=0 && !s[--j]);
+            if(!j) break; // ACABOU!
+            s[j++] = 0;
+            tam--;
+            continue;
         }
+        s[j] = 1;
+        
+        tam++;
+
+        // Se não é mais conjunto indep, continue
+
+        if(!disjuntos(madj[v], s))
+        {
+            s[j++] = 0;
+            tam--;
+            continue;
+        }
+
+        // Se ainda é conj indep, frita
+        
+
+        if(tam > maxTamanho)
+        {
+            maxTamanho = tam;
+            maxS = s;
+        }
+
+
+        
+
     }
 
 }
