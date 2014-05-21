@@ -33,10 +33,10 @@ void criaGrafo();
 void criaArestas(Ponto);
 void novaAresta(int, int);
 float distCircular(Ponto, Ponto);
-
+void indepSet1();
 
 float d, D;
-int n, N;
+int n, N, maxTamanho;
 int** A;
 
 vector< vector<int> > madj;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < n; i++)
 		for( int j = 0; j < n; j++)
 		{
-			A[i][j] = 1;
+			//A[i][j] = 1;
 			Ponto p = (Ponto) malloc(sizeof(ponto));
 			p->x = j; p->y = i; p->i = pontoVertice(p);
 			if(i == n/2 && j == n/2) pteste = p;
@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
 		}
 
 	criaGrafo();
+    indepSet1();
 
 	for(int i = 0; i < n; i++)
 	{
@@ -231,25 +232,35 @@ int disjuntos(vector<int> v1, vector<int> v2)
 void indepSet1()
 {
     int tam;
+    Ponto p;
+
+    p = vertices[0];
+    A[p->x][p->y] = 1;
     vector<int> s(n*n);  
     vector<int> maxS(n*n);
     int j;
     for(int i = 0; i < n; i++)
         s[i] = 0;
     int N = n*n;
-    s[j] = 1;
+    maxS[0] = s[0] = 1;
+    maxTamanho = 1;
+    j = 1;
     while(1)
     {
+        printf("j = %d\n", j);
 
-        if(j > N)
+        if(j >= N)
         {
             while(j!=0 && !s[--j]);
             if(!j) break; // ACABOU!
+            p = vertices[j];
+            A[p->x][p->y] = 0;
             s[j++] = 0;
             tam--;
             continue;
         }
-        s[j] = 1;
+        p = vertices[j];
+        A[p->x][p->y] = s[j] = 1;
         
         tam++;
 
@@ -257,7 +268,9 @@ void indepSet1()
 
         if(!disjuntos(madj[j], s))
         {
-            s[j++] = 0;
+            p = vertices[j];
+            A[p->x][p->y] = s[j++] = 0;
+            
             tam--;
             continue;
         }
@@ -270,6 +283,7 @@ void indepSet1()
             maxTamanho = tam;
             maxS = s;
         }
+        j++;
 
 
         
