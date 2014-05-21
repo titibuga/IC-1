@@ -54,17 +54,21 @@ int main(int argc, char* argv[])
 	D = strtof(argv[1], NULL);
 	d = strtof(argv[2], NULL);
 	n = D/d; /* cuidado com arredondamento */
-    int N = n*n;
+    N = n*n;
 
     madj.resize(N);
-    
+    for(int i = 0; i < N; i++)
+	{
+        madj[i].resize(N);
+    }
 	//adj = new list<int>[n];
 
 	A = alocaMatrizQuadrada(n);
 	N = n*n;
 
 	//adj = new vector<int>[n];
-	adj.resize(N);	
+	adj.resize(N);
+
 	vertices = new Ponto[n*n];
 
 	Ponto pteste;
@@ -79,7 +83,7 @@ int main(int argc, char* argv[])
 			vertices[p->i] = p;
 		}
 
-	criaGrafo();
+	criaArestas(vertices[N/2]);
     indepSet1();
 
 	for(int i = 0; i < n; i++)
@@ -154,13 +158,15 @@ void criaArestas(Ponto p)
 {
 
 	A[p->x][p->y] = 0;
+    
 	for(int i = 0; i < N; i++)
 	{
 		Ponto p2 = vertices[i];
 		float dist = distCircular(p,p2);
-		if(dist >= 1-d && dist <= 1+d){ // REVER
+        
+		if(dist > 1-d && dist < 1+d){ // REVER
 			novaAresta(p->i,p2->i);
-			A[p2->x][p2->y] = 0;
+            A[p2->x][p2->y] = 0;
 		}
 			// Cria aresta entre p1 e p2
 	}
@@ -247,7 +253,7 @@ void indepSet1()
     j = 1;
     while(1)
     {
-        printf("j = %d\n", j);
+//        printf("j = %d\n", j);
 
         if(j >= N)
         {
@@ -280,6 +286,7 @@ void indepSet1()
 
         if(tam > maxTamanho)
         {
+            printf("NOVO TAMANHO %d\n", tam);
             maxTamanho = tam;
             maxS = s;
         }
