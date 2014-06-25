@@ -37,7 +37,9 @@ void indepSet1();
 
 float d, D;
 int n, N, maxTamanho;
-int** A;
+//int** A;
+
+vector< vector<int> > A;
 
 vector< vector<int> > madj;
 
@@ -54,13 +56,18 @@ int main(int argc, char* argv[])
 	D = strtof(argv[1], NULL);
 	d = strtof(argv[2], NULL);
 	n = D/d; /* cuidado com arredondamento */
-    int N = n*n;
+    	N = n*n;
 
     madj.resize(N);
+    for(int i = 0; i < N; i++) madj[i].resize(N);
     
 	//adj = new list<int>[n];
 
-	A = alocaMatrizQuadrada(n);
+	//A = alocaMatrizQuadrada(n);
+
+    A.resize(n);
+	for(int i = 0; i < n; i++) A[i].resize(n);
+
 	N = n*n;
 
 	//adj = new vector<int>[n];
@@ -72,15 +79,17 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < n; i++)
 		for( int j = 0; j < n; j++)
 		{
-			//A[i][j] = 1;
-			Ponto p = (Ponto) malloc(sizeof(ponto));
+			A[i][j] = 0;
+			Ponto p = new ponto();
 			p->x = j; p->y = i; p->i = pontoVertice(p);
-			if(i == n/2 && j == n/2) pteste = p;
+			if(i == n-1 && j == 0) pteste = p;
 			vertices[p->i] = p;
 		}
 
-	criaGrafo();
-    indepSet1();
+//	criaGrafo();
+    //indepSet1();
+	criaArestas(pteste);
+	
 
 	for(int i = 0; i < n; i++)
 	{
@@ -103,7 +112,64 @@ int main(int argc, char* argv[])
 int pontoVertice(Ponto p)
 {
 	return n*p->y + p->x;
+	Ponto pteste;
+
+	for(int i = 0; i < n; i++)
+		for( int j = 0; j < n; j++)
+		{
+			A[i][j] = 0;
+			Ponto p = new ponto();
+			p->x = j; p->y = i; p->i = pontoVertice(p);
+			if(i == n-1 && j == 0) pteste = p;
+			vertices[p->i] = p;
+		}
 }
+
+
+
+
+
+float dist(Ponto p1, Ponto p2)
+{
+	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
+	float dx = x1 -x2, dy = y1 - y2;
+
+	return sqrt(dx*dx + dy*dy)*d;
+}
+
+
+void grafoR1(Ponto p)
+{
+
+}
+
+
+void criaCircR1(float d)
+{
+	D = 2;
+	n = D/d;
+	N = n << 1;
+
+
+	madj.resize(N);
+    for(int i = 0; i < N; i++) madj[i].resize(N);
+	vertices = new Ponto[N];
+ 	A.resize(n);
+	for(int i = 0; i < n; i++) A[i].resize(n);
+
+	for(int i = 0; i < n; i++)
+		for( int j = 0; j < n; j++)
+		{
+			A[i][j] = 0;
+			Ponto p = new ponto();
+			p->x = j; p->y = i; p->i = pontoVertice(p);
+			if(i == n/2 && j == n/2) pteste = p;
+			vertices[p->i] = p;
+		}
+	
+}
+
+
 
 /*****************
 
@@ -153,15 +219,17 @@ void criaGrafo()
 void criaArestas(Ponto p)
 {
 
-	A[p->x][p->y] = 0;
+	A[p->x][p->y] = 1;
 	for(int i = 0; i < N; i++)
 	{
 		Ponto p2 = vertices[i];
 		float dist = distCircular(p,p2);
+		
 		if(dist >= 1-d && dist <= 1+d){ // REVER
 			novaAresta(p->i,p2->i);
-			A[p2->x][p2->y] = 0;
+			A[p2->x][p2->y] = 1;
 		}
+		
 			// Cria aresta entre p1 e p2
 	}
 
