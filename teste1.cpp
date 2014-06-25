@@ -38,10 +38,13 @@ void indepSet1();
 float d, D;
 int n, N, maxTamanho;
 //int** A;
+<<<<<<< HEAD
 
 vector< vector<int> > A;
+=======
+>>>>>>> 034e782b977b1fe0801ad2bbb269746ffa315c3e
 
-vector< vector<int> > madj;
+vector< vector<int> > madj, A, Amax;
 
 
 vector< list<int> > adj;
@@ -56,8 +59,12 @@ int main(int argc, char* argv[])
 	D = strtof(argv[1], NULL);
 	d = strtof(argv[2], NULL);
 	n = D/d; /* cuidado com arredondamento */
-    	N = n*n;
 
+    N = n*n;
+
+
+    A.resize(n);
+    Amax.resize(n);
     madj.resize(N);
     for(int i = 0; i < N; i++) madj[i].resize(N);
     
@@ -65,13 +72,20 @@ int main(int argc, char* argv[])
 
 	//A = alocaMatrizQuadrada(n);
 
-    A.resize(n);
-	for(int i = 0; i < n; i++) A[i].resize(n);
+    for(int i =0; i < n; i++)
+    {
+        A[i].resize(n);
+        Amax[i].resize(n);
 
-	N = n*n;
+    }
+	//adj = new list<int>[n];
+
+//	A = alocaMatrizQuadrada(n);
+
 
 	//adj = new vector<int>[n];
-	adj.resize(N);	
+	adj.resize(N);
+
 	vertices = new Ponto[n*n];
 
 	Ponto pteste;
@@ -94,12 +108,13 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < n; i++)
 	{
 		for(int j = 0; j < n; j++)
-			if(!A[i][j])printf("\033[1;31m[%d]\033[0m",A[i][j]);
-			else printf("[%d]",A[i][j]);
+			if(!Amax[i][j])printf("\033[1;31m[%d]\033[0m",Amax[i][j]);
+			else printf("[%d]",Amax[i][j]);
 		printf("\n");
 	}
 
 
+    
 	return 0;
 }
 
@@ -197,6 +212,27 @@ float distCircular(Ponto p1, Ponto p2)
 	//printf("Dist: %f\n", (dx*dx + dy*dy)*d);
 	return sqrt(dx*dx + dy*dy)*d;
 }
+/**************
+ * Calcula a distancia normal entre os pontos
+ *
+ *
+ *
+ * ******************/
+
+float distNormal(Ponto p1, Ponto p2)
+{
+
+   	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
+	float dx = x1 -x2, dy = y1 - y2;
+
+	if(dx < 0) dx*=-1;
+	if(dy < 0) dy*=-1;
+
+	return sqrt(dx*dx + dy*dy)*d;
+
+}
+
+
 
 
 
@@ -223,11 +259,11 @@ void criaArestas(Ponto p)
 	for(int i = 0; i < N; i++)
 	{
 		Ponto p2 = vertices[i];
-		float dist = distCircular(p,p2);
-		
-		if(dist >= 1-d && dist <= 1+d){ // REVER
+		float dist = distCircular(p,p2);        
+		if(dist > 1-d && dist < 1+d){ // REVER
 			novaAresta(p->i,p2->i);
-			A[p2->x][p2->y] = 1;
+            A[p2->x][p2->y] = 0;
+
 		}
 		
 			// Cria aresta entre p1 e p2
@@ -282,6 +318,7 @@ int** alocaMatrizQuadrada(int n)
  *
  * Feitos:
  *  - Força bruta (indepSet1())
+ *  - Simulates Annealing (annealing())
  ****************************************************/
 
 //Supomos que v1 e v2 são do mesmo tamanho
@@ -312,10 +349,11 @@ void indepSet1()
     int N = n*n;
     maxS[0] = s[0] = 1;
     maxTamanho = 1;
+    tam = 1;
     j = 1;
     while(1)
     {
-        printf("j = %d\n", j);
+//        printf("j = %d\n", j);
 
         if(j >= N)
         {
@@ -348,8 +386,10 @@ void indepSet1()
 
         if(tam > maxTamanho)
         {
+            printf("NOVO TAMANHO %d\n", tam);
             maxTamanho = tam;
             maxS = s;
+            Amax = A;
         }
         j++;
 
@@ -358,7 +398,20 @@ void indepSet1()
 
     }
 
+    printf("%d\n", maxTamanho);
+
 }
 
+
+void solInicial()
+{
+    return;
+}
+
+
+void annealing(int T, float coolR)
+{
+    solInicial();
+}
 
 
