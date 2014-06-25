@@ -37,9 +37,9 @@ void indepSet1();
 
 float d, D;
 int n, N, maxTamanho;
-int** A;
+//int** A;
 
-vector< vector<int> > madj;
+vector< vector<int> > madj, A, Amax;
 
 
 vector< list<int> > adj;
@@ -56,15 +56,24 @@ int main(int argc, char* argv[])
 	n = D/d; /* cuidado com arredondamento */
     N = n*n;
 
+    A.resize(n);
+    Amax.resize(n);
     madj.resize(N);
     for(int i = 0; i < N; i++)
 	{
         madj[i].resize(N);
     }
+
+    for(int i =0; i < n; i++)
+    {
+        A[i].resize(n);
+        Amax[i].resize(n);
+
+    }
 	//adj = new list<int>[n];
 
-	A = alocaMatrizQuadrada(n);
-	N = n*n;
+//	A = alocaMatrizQuadrada(n);
+
 
 	//adj = new vector<int>[n];
 	adj.resize(N);
@@ -83,18 +92,19 @@ int main(int argc, char* argv[])
 			vertices[p->i] = p;
 		}
 
-	criaArestas(vertices[N/2]);
+	criaGrafo();
     indepSet1();
 
 	for(int i = 0; i < n; i++)
 	{
 		for(int j = 0; j < n; j++)
-			if(!A[i][j])printf("\033[1;31m[%d]\033[0m",A[i][j]);
-			else printf("[%d]",A[i][j]);
+			if(!Amax[i][j])printf("\033[1;31m[%d]\033[0m",Amax[i][j]);
+			else printf("[%d]",Amax[i][j]);
 		printf("\n");
 	}
 
 
+    
 	return 0;
 }
 
@@ -135,6 +145,27 @@ float distCircular(Ponto p1, Ponto p2)
 	//printf("Dist: %f\n", (dx*dx + dy*dy)*d);
 	return sqrt(dx*dx + dy*dy)*d;
 }
+/**************
+ * Calcula a distancia normal entre os pontos
+ *
+ *
+ *
+ * ******************/
+
+float distNormal(Ponto p1, Ponto p2)
+{
+
+   	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
+	float dx = x1 -x2, dy = y1 - y2;
+
+	if(dx < 0) dx*=-1;
+	if(dy < 0) dy*=-1;
+
+	return sqrt(dx*dx + dy*dy)*d;
+
+}
+
+
 
 
 
@@ -220,6 +251,7 @@ int** alocaMatrizQuadrada(int n)
  *
  * Feitos:
  *  - Força bruta (indepSet1())
+ *  - Simulates Annealing (annealing())
  ****************************************************/
 
 //Supomos que v1 e v2 são do mesmo tamanho
@@ -250,6 +282,7 @@ void indepSet1()
     int N = n*n;
     maxS[0] = s[0] = 1;
     maxTamanho = 1;
+    tam = 1;
     j = 1;
     while(1)
     {
@@ -289,6 +322,7 @@ void indepSet1()
             printf("NOVO TAMANHO %d\n", tam);
             maxTamanho = tam;
             maxS = s;
+            Amax = A;
         }
         j++;
 
@@ -297,7 +331,20 @@ void indepSet1()
 
     }
 
+    printf("%d\n", maxTamanho);
+
 }
 
+
+void solInicial()
+{
+    return;
+}
+
+
+void annealing(int T, float coolR)
+{
+    solInicial();
+}
 
 
