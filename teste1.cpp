@@ -34,15 +34,12 @@ void criaArestas(Ponto);
 void novaAresta(int, int);
 float distCircular(Ponto, Ponto);
 void indepSet1();
+void criaCircR1( float D, float d);
 
 float d, D;
 int n, N, maxTamanho;
 //int** A;
-<<<<<<< HEAD
 
-vector< vector<int> > A;
-=======
->>>>>>> 034e782b977b1fe0801ad2bbb269746ffa315c3e
 
 vector< vector<int> > madj, A, Amax;
 
@@ -51,16 +48,33 @@ vector< list<int> > adj;
 Ponto* vertices;
 
 
+
+
+
 int main(int argc, char* argv[])
 {
 
 
+	if(argc < 4)
+	{
+		printf("Modo de uso: ./ep <tipo> D d ");
+	}
 
-	D = strtof(argv[1], NULL);
-	d = strtof(argv[2], NULL);
+
+	D = strtof(argv[2], NULL);
+	d = strtof(argv[3], NULL);
 	n = D/d; /* cuidado com arredondamento */
 
-    N = n*n;
+    N = n << 1;
+
+	if(*argv[1] == 'c')
+	{
+		criaCircR1();
+		return 0;
+	}
+
+	
+	
 
 
     A.resize(n);
@@ -144,7 +158,7 @@ int pontoVertice(Ponto p)
 
 
 
-float dist(Ponto p1, Ponto p2)
+float distE(Ponto p1, Ponto p2)
 {
 	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
 	float dx = x1 -x2, dy = y1 - y2;
@@ -153,19 +167,41 @@ float dist(Ponto p1, Ponto p2)
 }
 
 
-void grafoR1(Ponto p)
+void grafoR1(Ponto pc)
 {
+	Ponto p;
+	for(int i = 0; i < N; i++)
+	{
+		p = vertices[i];
+		A[p->x][p->y] = 1;
+		float distR = distE(pc,p);
+		if(distR >= 1) continue;
+		for(int j = 0; j < N; i++)
+		{
+			Ponto p2 = vertices[j];
+			float dist = distE(p,p2);
+			float distR = distE(pc,p2);        
+			if(distR < 1 && dist > 1-d && dist < 1+d){ //distR < 1, será?
+				novaAresta(p->i,p2->i);
+	            A[p2->x][p2->y] = 1;
 
+			}
+			
+				// Cria aresta entre p1 e p2
+		}		
+	}
 }
 
 
-void criaCircR1(float d)
+void criaCircR1( float D, float d)
 {
+	/*
 	D = 2;
 	n = D/d;
 	N = n << 1;
+	*/
 
-
+	Ponto pteste;
 	madj.resize(N);
     for(int i = 0; i < N; i++) madj[i].resize(N);
 	vertices = new Ponto[N];
@@ -181,6 +217,7 @@ void criaCircR1(float d)
 			if(i == n/2 && j == n/2) pteste = p;
 			vertices[p->i] = p;
 		}
+	grafoR1(pteste);
 	
 }
 
@@ -199,7 +236,6 @@ float distCircular(Ponto p1, Ponto p2)
 {
 	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
 	float dx = x1 -x2, dy = y1 - y2;
-	float dist1;
 
 	if(dx < 0) dx*=-1;
 	if(dy < 0) dy*=-1;
@@ -212,25 +248,7 @@ float distCircular(Ponto p1, Ponto p2)
 	//printf("Dist: %f\n", (dx*dx + dy*dy)*d);
 	return sqrt(dx*dx + dy*dy)*d;
 }
-/**************
- * Calcula a distancia normal entre os pontos
- *
- *
- *
- * ******************/
 
-float distNormal(Ponto p1, Ponto p2)
-{
-
-   	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
-	float dx = x1 -x2, dy = y1 - y2;
-
-	if(dx < 0) dx*=-1;
-	if(dy < 0) dy*=-1;
-
-	return sqrt(dx*dx + dy*dy)*d;
-
-}
 
 
 
@@ -260,9 +278,9 @@ void criaArestas(Ponto p)
 	{
 		Ponto p2 = vertices[i];
 		float dist = distCircular(p,p2);        
-		if(dist > 1-d && dist < 1+d){ // REVER
+		if(dist > 1-d && dist < 1+d){ 
 			novaAresta(p->i,p2->i);
-            A[p2->x][p2->y] = 0;
+            A[p2->x][p2->y] = 1;
 
 		}
 		
