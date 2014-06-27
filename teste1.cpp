@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
 	if(*argv[1] == 'c')
 	{
-		criaCircR1();
+		criaCircR1(D,d);
 		return 0;
 	}
 
@@ -421,15 +421,46 @@ void indepSet1()
 }
 
 
-void solInicial()
+void solInicial(&vector<int> s)
 {
-    return;
+	for(int i = 0; i < N; i++) s[i] = 0;
+
+	for(int i = 0; i < N; i++)
+	{
+		s[i] = 1;
+		if(!disjuntos(madj[i], s)) s[i] = 0;	
+	}
+}
+
+int novasArestas(int v, &vector<int> s)
+{
+	int qtd = 0;
+
+	for(vector<int>::iterator it = s.begin(); it != s.end(); ++it)
+	{
+		int u = *it;
+		if(s[u]) qtd++;
+	}
+
+	return qtd;
+
 }
 
 
 void annealing(int T, float coolR)
 {
-    solInicial();
+	vector<int> s(N);
+	vector<int> sT(N);
+	int c = 0, cTemp = 0;
+
+    solInicial(s);
+
+    while(T>1)
+    {
+    	((double) rand() / (RAND_MAX))
+       	T *= 1-coolR
+    }
+
 }
 
 
