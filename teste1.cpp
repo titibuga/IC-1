@@ -421,7 +421,7 @@ void indepSet1()
 }
 
 
-void solInicial(&vector<int> s)
+void solInicial(vector<int>& s)
 {
 	for(int i = 0; i < N; i++) s[i] = 0;
 
@@ -432,7 +432,7 @@ void solInicial(&vector<int> s)
 	}
 }
 
-int novasArestas(int v, &vector<int> s)
+int novasArestas(int v, vector<int>& s)
 {
 	int qtd = 0;
 
@@ -451,14 +451,43 @@ void annealing(int T, float coolR)
 {
 	vector<int> s(N);
 	vector<int> sT(N);
-	int c = 0, cTemp = 0;
+	int nV = 0, nVtemp = 0;
+	int nA = 0, nAtemp = 0;
+	int c, cTemp;
 
     solInicial(s);
+    for(int i = 0; i < N; i++) nV += s[i];
+    nVtemp = c = nV;
 
     while(T>1)
     {
-    	((double) rand() / (RAND_MAX))
-       	T *= 1-coolR
+    	int rv =  ((double) rand() / (RAND_MAX))*N;
+    	sT = s; // Quanto tempo isso demora?
+
+    	if(s[rv])
+    	{
+    		sT[rv] = 0; nVtemp--;
+    		nAtemp -= novasArestas(rv,sT);
+    	}
+    	else
+    	{
+    		nAtemp += novasArestas(rv,sT);
+    		sT[rv] = 1;
+    		nVtemp++;
+    	}
+
+    	cTemp = nVtemp - nAtemp/T;
+    	c = nV - nA/T;
+
+    	if(c < cTemp || exp(((c - cTemp)*1.0)/T) > rand()/(RAND_MAX))
+    	{
+    		s = sT;
+    		nV = nVtemp;
+    		nA = nAtemp;
+    	}
+
+
+       	T *= 1-coolR;
     }
 
 }
