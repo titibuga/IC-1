@@ -32,16 +32,18 @@ int** alocaMatrizQuadrada(int n);
 void criaGrafo();
 void criaArestas(Ponto);
 void novaAresta(int, int);
-float distCircular(Ponto, Ponto);
+double distCircular(Ponto, Ponto);
 void indepSet1();
-void criaCircR1( float D, float d);
+void criaCircR1( double D, double d);
+void annealing(double T, double coolR);
+int novasArestas(int v, vector<int>& s);
 
-float d, D;
+double d, D;
 int n, N, maxTamanho;
 //int** A;
 
 
-vector< vector<int> > madj, A, Amax;
+vector< vector<int> > A, Amax;
 
 
 vector< list<int> > adj;
@@ -65,7 +67,7 @@ int main(int argc, char* argv[])
 	d = strtof(argv[3], NULL);
 	n = D/d; /* cuidado com arredondamento */
 
-    N = n << 1;
+    N = n*n;
 
 	if(*argv[1] == 'c')
 	{
@@ -79,8 +81,8 @@ int main(int argc, char* argv[])
 
     A.resize(n);
     Amax.resize(n);
-    madj.resize(N);
-    for(int i = 0; i < N; i++) madj[i].resize(N);
+   /* madj.resize(N);
+    for(int i = 0; i < N; i++) madj[i].resize(N);*/
     
 	//adj = new list<int>[n];
 
@@ -114,9 +116,10 @@ int main(int argc, char* argv[])
 			vertices[p->i] = p;
 		}
 
-//	criaGrafo();
+	criaGrafo();
+	annealing(1000000000,0.0000001);
     //indepSet1();
-	criaArestas(pteste);
+
 	
 
 	for(int i = 0; i < n; i++)
@@ -158,10 +161,10 @@ int pontoVertice(Ponto p)
 
 
 
-float distE(Ponto p1, Ponto p2)
+double distE(Ponto p1, Ponto p2)
 {
 	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
-	float dx = x1 -x2, dy = y1 - y2;
+	double dx = x1 -x2, dy = y1 - y2;
 
 	return sqrt(dx*dx + dy*dy)*d;
 }
@@ -174,13 +177,13 @@ void grafoR1(Ponto pc)
 	{
 		p = vertices[i];
 		A[p->x][p->y] = 1;
-		float distR = distE(pc,p);
+		double distR = distE(pc,p);
 		if(distR >= 1) continue;
 		for(int j = 0; j < N; i++)
 		{
 			Ponto p2 = vertices[j];
-			float dist = distE(p,p2);
-			float distR = distE(pc,p2);        
+			double dist = distE(p,p2);
+			double distR = distE(pc,p2);        
 			if(distR < 1 && dist > 1-d && dist < 1+d){ //distR < 1, será?
 				novaAresta(p->i,p2->i);
 	            A[p2->x][p2->y] = 1;
@@ -193,7 +196,7 @@ void grafoR1(Ponto pc)
 }
 
 
-void criaCircR1( float D, float d)
+void criaCircR1( double D, double d)
 {
 	/*
 	D = 2;
@@ -202,8 +205,8 @@ void criaCircR1( float D, float d)
 	*/
 
 	Ponto pteste;
-	madj.resize(N);
-    for(int i = 0; i < N; i++) madj[i].resize(N);
+	/*madj.resize(N);
+    for(int i = 0; i < N; i++) madj[i].resize(N);*/
 	vertices = new Ponto[N];
  	A.resize(n);
 	for(int i = 0; i < n; i++) A[i].resize(n);
@@ -232,10 +235,10 @@ void criaCircR1( float D, float d)
 
 *********************/
 
-float distCircular(Ponto p1, Ponto p2)
+double distCircular(Ponto p1, Ponto p2)
 {
 	int x1 = p1->x, y1 = p1->y, x2 = p2->x, y2 = p2->y;
-	float dx = x1 -x2, dy = y1 - y2;
+	double dx = x1 -x2, dy = y1 - y2;
 
 	if(dx < 0) dx*=-1;
 	if(dy < 0) dy*=-1;
@@ -277,7 +280,7 @@ void criaArestas(Ponto p)
 	for(int i = 0; i < N; i++)
 	{
 		Ponto p2 = vertices[i];
-		float dist = distCircular(p,p2);        
+		double dist = distCircular(p,p2);        
 		if(dist > 1-d && dist < 1+d){ 
 			novaAresta(p->i,p2->i);
             A[p2->x][p2->y] = 1;
@@ -293,7 +296,7 @@ void criaArestas(Ponto p)
 void novoArco(int v1, int v2)
 {
 
-    madj[v1][v2] = 1;
+   // madj[v1][v2] = 1;
 	for (list<int>::iterator it = adj[v1].begin() ; it != adj[v1].end(); ++it)
 	{
 		if(*it == v2) return;
@@ -383,13 +386,20 @@ void indepSet1()
             tam--;
             continue;
         }
+        if(novasArestas(j,s)) // Se não é mais conjunto indep, pula
+        {
+        	j++;
+        	continue;
+        }
+
+
         p = vertices[j];
         A[p->x][p->y] = s[j] = 1;
         
         tam++;
 
-        // Se não é mais conjunto indep, continue
-
+        
+/*
         if(!disjuntos(madj[j], s))
         {
             p = vertices[j];
@@ -397,7 +407,7 @@ void indepSet1()
             
             tam--;
             continue;
-        }
+        }*/
 
         // Se ainda é conj indep, frita
         
@@ -424,19 +434,16 @@ void indepSet1()
 void solInicial(vector<int>& s)
 {
 	for(int i = 0; i < N; i++) s[i] = 0;
-
+/*
 	for(int i = 0; i < N; i++)
-	{
-		s[i] = 1;
-		if(!disjuntos(madj[i], s)) s[i] = 0;	
-	}
+		if(!novasArestas(i,s)) s[i] = 1;*/
 }
 
 int novasArestas(int v, vector<int>& s)
 {
 	int qtd = 0;
 
-	for(vector<int>::iterator it = s.begin(); it != s.end(); ++it)
+	for(list<int>::iterator it = adj[v].begin(); it != adj[v].end(); ++it)
 	{
 		int u = *it;
 		if(s[u]) qtd++;
@@ -447,24 +454,34 @@ int novasArestas(int v, vector<int>& s)
 }
 
 
-void annealing(int T, float coolR)
+void annealing(double T, double coolR)
 {
 	vector<int> s(N);
 	vector<int> sT(N);
+	vector<int> sMax(N);
 	int nV = 0, nVtemp = 0;
 	int nA = 0, nAtemp = 0;
+	int tMax = 0;
 	int c, cTemp;
+	int maxC = -1;
 
     solInicial(s);
+    sMax = s;
     for(int i = 0; i < N; i++) nV += s[i];
     nVtemp = c = nV;
+	tMax = nV;
+	maxC = nV;
 
-    while(T>1)
+    while(T>1 )
     {
-    	int rv =  ((double) rand() / (RAND_MAX))*N;
+    	int rv =  ((double) 1.0*rand() / (RAND_MAX))*N;
     	sT = s; // Quanto tempo isso demora?
+    	nVtemp = nV;
+    	nAtemp = nA;
 
-    	if(s[rv])
+    //	printf("Vértice: %d || nA = %d\n", rv, nA);
+
+    	if(sT[rv])
     	{
     		sT[rv] = 0; nVtemp--;
     		nAtemp -= novasArestas(rv,sT);
@@ -479,16 +496,42 @@ void annealing(int T, float coolR)
     	cTemp = nVtemp - nAtemp/T;
     	c = nV - nA/T;
 
-    	if(c < cTemp || exp(((c - cTemp)*1.0)/T) > rand()/(RAND_MAX))
+    	double b;
+    	int a;
+    	if(c < cTemp ||  (a = (exp(((cTemp-c)*1.0)/T) > (rand()*1.0)/(RAND_MAX) )) )
     	{
+    		//printf("%d\n",a);
     		s = sT;
     		nV = nVtemp;
     		nA = nAtemp;
+    		//printf("nV: %d nA: %d c: %d || nVtemp: %d nAtemp: %d c: %d\n",nV,nA,c,nVtemp,nAtemp, cTemp);
+    		//printf("Teste1: %d || Delta:%d a: %f b: %f\n",c < cTemp,c-cTemp,a,b);
+    		if(nA < 1000 && nV > tMax)
+    		{
+    			
+    			tMax = nV;
+    			sMax = s;
+    			maxC = c;
+    		}
     	}
 
-
-       	T *= 1-coolR;
+       	T *= (1.0-coolR);
     }
+
+    printf("tMax: %d nV: %d\n",tMax, nV);
+
+    tMax = 0;
+    for(int i = 0; i < N; i++)
+    {
+    	tMax += sMax[i];
+    	Ponto p = vertices[i];
+    	if(sMax[i])
+       		Amax[p->x][p->y] = 1;
+       	else
+       		Amax[p->x][p->y] = 0;
+   
+    }
+    printf("tMax: %d\n",tMax);
 
 }
 
