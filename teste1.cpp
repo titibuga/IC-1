@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
 		printf("Achando conjunto independente...\n");
 		int temp = N;
 		N = N2;
-		//annealing(100000,0.001,500);
-		tabuSearch(20,500,70);
+		annealing(100000,0.001,500);
+		//tabuSearch(20,500,70);
 		N = temp;
 		/*
 		Ponto ph1 = vertices[130];
@@ -786,7 +786,7 @@ void annealing(double T, double coolR, int iter)
 
     } while(T > 1 || nAmax != 0);
     for(int i = 0; i < N; i++)
-		if(!novasArestas(i,sMax))
+		if(!sMax[i] && !novasArestas(i,sMax))
 		{
 			sMax[i] = 1;
 			tMax++;
@@ -796,8 +796,10 @@ void annealing(double T, double coolR, int iter)
 
     tMax = 0;
     for(int i = 0; i < N; i++)
+
     {
-    	tMax += sMax[i];
+    	//tMax += sMax[i];
+    	if(sMax[i]) tMax++;
     	Ponto p = vertices[i];
     	if(sMax[i])
        		Amax[p->x][p->y] = 1;
@@ -805,7 +807,16 @@ void annealing(double T, double coolR, int iter)
        		Amax[p->x][p->y] = 0;
    
     }
-    printf("tMax: %d || N: %d\n",tMax,N);
+    for(int i = 0; i < N; i++)
+    {
+    	if(sMax[i])
+    	{
+    		sMax[i] = 0;
+    		if(novasArestas(i, sMax)) printf("VISH\n");
+    		sMax[i] = 1;
+    	}
+    }
+    printf("tMax: %d || N: %d || Porcentagem: %f%%\n",tMax,N,(100.0*tMax)/N);
 
 }
 
