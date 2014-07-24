@@ -120,19 +120,44 @@ int main(int argc, char* argv[])
 		annealing(100000,0.001,500);
 		//tabuSearch(20,500,70);
 		N = temp;
-		/*
-		Ponto ph1 = vertices[130];
+
+		int qtd = 0;
+		Ponto ph1 = MatrizP[n/2][n/2];
+/*********************** Bola raio 0.5 ************************
+		list<Ponto> bolinha;		
+		
 		for(int i = 0; i < n; i++)
 			for(int j = 0; j < n; j++)
 			{
 				Ponto ph2 = MatrizP[i][j];
 				float disth = distE(ph1,ph2);
-				if(disth >= 1-d && disth <= 1+d) Amax[i][j] = 1;
+				if(disth < 0.5 - d )
+				{
+					Amax[i][j] = 1;
+					qtd++;
+					bolinha.push_back(ph2);
+				}
 				else Amax[i][j] = 0;
 				if(ph2 == ph1) Amax[i][j] = 1;
 
-			}	
-		*/
+			}
+			printf("Porcentagem: %f%%\n", 100.0*qtd/N2);
+		for(list<Ponto>::iterator it = bolinha.begin(); it != bolinha.end(); ++it)
+		{
+			Ponto pt1 = *it;
+			for(list<int>::iterator it2 = adj[pt1->i].begin(); it2 != adj[pt1->i].end(); ++it2)
+			{
+				Ponto pt2 = vertices[*it2];
+				if(Amax[pt2->y][pt2->x]) printf("Bolinha não é conj. indep.\n");
+			}
+		}
+		int v = ph1->i;
+		for(list<int>::iterator it = adj[v].begin(); it != adj[v].end(); ++it)
+		{
+			Ponto ph2 = vertices[*it];
+			Amax[ph2->y][ph2->x] = 1;
+		}
+****************************************************************/	
 		printf("Criando imagem....\n");
 
 		BMP img;
@@ -175,9 +200,46 @@ int main(int argc, char* argv[])
 						img(i2,j2)->Alpha = 0;
 					}
 
+				
+
 			}
 		}
+/********************* Pinta centro de vermleho e adjacencia do conj indep ****************/
 
+		for(int i2 = ph1->y*tam; i2 < ph1->y*tam + tam; i2++)
+					for(int j2 = tam*ph1->x; j2 < tam*ph1->x + tam; j2++)
+					{
+						img(i2,j2)->Red = 0;
+						img(i2,j2)->Green = 0;
+						img(i2,j2)->Blue = 0;
+						img(i2,j2)->Alpha = 0;
+					}
+
+		for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+		{
+			if(Amax[i][j])
+			{
+				int v = MatrizP[i][j]->i;
+				for(list<int>::iterator it = adj[v].begin(); it != adj[v].end(); ++it)
+				{
+					int u = *it;
+					Ponto p = vertices[u];
+						
+					if(Amax[p->y][p->x]) printf("Deu caca\n");
+
+					for(int i2 = p->y*tam; i2 < p->y*tam + tam; i2++)
+					for(int j2 = tam*p->x; j2 < tam*p->x + tam; j2++)
+					{
+						img(i2,j2)->Red = 255;
+						img(i2,j2)->Green = 0;
+						img(i2,j2)->Blue = 0;
+						img(i2,j2)->Alpha = 0;
+					}
+				}
+			}
+		}
+/*********************************************************************************************/
 		img.WriteToFile("Output.bmp");
 		return 0;
 		
@@ -280,6 +342,8 @@ int main(int argc, char* argv[])
 		//printf("\n");
 	}
 
+
+
 	
 	img.WriteToFile("Output.bmp");
 
@@ -359,7 +423,7 @@ void criaArestas2(Ponto p)
 	{
 		Ponto p2 = vertices[i];
 		double dist = distE(p,p2);        
-		if(dist > 1-d && dist < 1+d){ 
+		if(dist >= 1-(d*1.42) && dist <= 1+(d*1.42)){ 
 			novaAresta(p->i,p2->i);
             A[p2->x][p2->y] = 1;
 
@@ -802,9 +866,9 @@ void annealing(double T, double coolR, int iter)
     	if(sMax[i]) tMax++;
     	Ponto p = vertices[i];
     	if(sMax[i])
-       		Amax[p->x][p->y] = 1;
+       		Amax[p->y][p->x] = 1;
        	else
-       		Amax[p->x][p->y] = 0;
+       		Amax[p->y][p->x] = 0;
    
     }
     for(int i = 0; i < N; i++)
@@ -935,9 +999,9 @@ void tabuSearch(int nt2, int nI, int k)
     	tMax += sMax[i];
     	Ponto p = vertices[i];
     	if(sMax[i])
-       		Amax[p->x][p->y] = 1;
+       		Amax[p->y][p->x] = 1;
        	else
-       		Amax[p->x][p->y] = 0;
+       		Amax[p->y][p->x] = 0;
    
     }
     printf("tMax: %d || N: %d\n",tMax,N);
